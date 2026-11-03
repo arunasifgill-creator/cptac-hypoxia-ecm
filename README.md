@@ -2,8 +2,8 @@
 
 Analysis code and data for:
 
-> **Hypoxia Reprograms Collagen Biosynthesis in Breast Cancer through Direct and ER Stress-Mediated Routes: An Interpretable Proteogenomic and Machine Learning Analysis**
-> Arun Asif, Zeeshan, Jaeyoung Cho. *Genes* (submitted).
+> **Hypoxia Is Associated with a Shift from Collagen Deposition toward Collagen Processing Capacity in Breast Cancer: An Interpretable Proteogenomic and Machine Learning Analysis**
+> Arun Asif, Zeeshan, Jaeyoung Choi. *Genes* (under revision).
 
 Everything in the paper, every figure, every table and every number quoted in the text, is regenerated from the raw exports in `data/` by a single command.
 
@@ -18,7 +18,9 @@ This repository answers it two independent ways on 122 treatment-naive primary b
 1. **Parallel mediation.** A hypoxia score is the exposure, ER stress modules are competing mediators, collagen enzymes are the outcome. Bootstrap confidence intervals separate the direct route from the mediated one.
 2. **Interpretable classifiers.** Nested cross-validation asks whether ER stress features carry any information that hypoxia and ECM features do not.
 
-The two methods agree, which is the point: most of the effect is direct, and ER stress is largely redundant once hypoxia is known.
+The two methods agree, which is the point: most of the association is direct, and ER stress is largely redundant once hypoxia is known.
+
+These are cross-sectional associations between protein abundances. They do not establish causal direction and they do not measure collagen maturation or secretion.
 
 ---
 
@@ -32,7 +34,7 @@ cd code
 python3 run_all.py
 ```
 
-**Runtime is roughly 45 to 90 minutes on a laptop**, almost all of it in the nested cross-validation (`a3_ml.py`, about 25 minutes) and the 200-label permutation test (`a4_ml_extra.py`). The figure scripts take seconds. To regenerate only the figures from result tables already in `out/`, run the `fig_*.py` scripts directly.
+**Runtime is roughly 2 to 3 hours on a laptop**, almost all of it in the cross-validated classifiers (`a3_ml.py` and `a6_ml_foldsafe.py`, which refits every transformation inside each training fold) and the permutation tests (`a4_ml_extra.py`, `a11_robustness.py`). The figure scripts take seconds. To regenerate only the figures from result tables already in `out/`, run the `fig_*.py` scripts directly.
 
 Result tables land in `out/`, figures in `figures/` as 600 dpi PNG and vector PDF.
 
@@ -50,7 +52,24 @@ code/
   a2_mediation.py    parallel multiple-mediator model (Table 2)
   a3_ml.py           nested cross-validated classifiers
   a4_ml_extra.py     permutation test, incremental AUC over proliferation
-  a5_phospho.py      phosphosite and occupancy analysis
+  a5_phospho.py      phosphosite and protein-adjusted abundance analysis
+
+  revision analyses added in response to peer review:
+  a6_ml_foldsafe.py       classifiers with every transformation fitted inside the
+                          training folds, plus patient-level bootstrap intervals
+  a7_coefs_foldsafe.py    fold-safe classifier coefficients
+  a8_sensitivity.py       eight covariate specifications, stratified, leave-one-out
+  a9_mediation_robust.py  path coefficients, VIF, single-mediator, reversed ordering
+  a10_signatures.py       broader ATF4 and XBP1s signatures, hypoxia signature
+                          bootstrap, comparison with the external Buffa signature
+  a11_robustness.py       tumour-level permutation test for module preservation,
+                          and sensitivity to the HER2+ group definition
+  a12_batch_qc.py         subtype by TMT plex, and every module score tested across
+                          plexes with BH correction
+  a13_phospho_qc.py       per-site coverage, missingness sensitivity, residue
+                          verification and regulatory annotation
+  make_supp_tables.py     builds the 30-sheet supplementary workbook
+
   fig_*.py           one script per figure
   run_all.py         runs all of the above in order
 data/                raw cBioPortal and CPTAC exports (see Data sources)
@@ -70,10 +89,14 @@ figures/             600 dpi PNG + PDF, plus the source values behind each panel
 | 4 | `figs_final.py` | Collagen export, TGF-beta response and ER redox |
 | 5 | `fig_cluster.py` | Correlation architecture of the gene panel |
 | 6 | `fig_ml.py` | Classifier performance by feature set |
-| 7 | `fig_phospho.py` | Phosphosite occupancy along the export route |
-| S1 | `fig_s1_cohort.py` | Cohort composition and data quality |
+| 7 | `fig_phospho.py` | Phosphosite abundance along the export route |
+| 8 | `fig8_summary.py` | Summary schematic of the relationships examined |
+| S1 | `fig_s1_cohort.py` | Cohort composition, data quality and batch structure |
 | S2 | `figs_final.py` | Hormone receptor subgroups |
 | S3 | `figs_final.py` | Iron handling proteins along the hypoxia axis |
+| S4 | `fig_supp_large.py` | Correlation matrix of Figure 5A at full page |
+| S5 | `fig_supp_large.py` | Classifier coefficients of Figure 6C,D at full page |
+| S6 | `fig_supp_large.py` | Every collagen-export phosphosite with n and adjusted q |
 
 Each figure also writes a CSV of the values behind its panels, so any number in the paper can be traced without rerunning the analysis.
 
@@ -87,8 +110,10 @@ Each figure also writes a CSV of the values behind its panels, so any number in 
 - **Hypoxia score.** A 19-protein consensus signature selected without using subtype labels: candidates correlating at rho >= 0.30 with seven canonical hypoxia seeds. Building it label-free keeps the subtype comparison from being circular.
 - **Effect sizes.** Cliff's delta with bootstrap confidence intervals; |delta| >= 0.474 is treated as a large effect. Two-sided Mann-Whitney U tests, Benjamini-Hochberg across each family.
 - **Mediation.** Parallel multiple-mediator model with 5000 bootstrap percentile intervals, all variables rank-residualized then standardized.
-- **Machine learning.** L2 logistic regression and random forests, nested stratified 5-fold cross-validation repeated 20 times, so hyperparameter tuning never sees the held-out fold. Tested against 200 label permutations.
-- **Phosphosites.** Occupancy is each site residualized on its own total protein and on purity, which separates a genuine phosphorylation shift from a change in protein abundance.
+- **Machine learning.** L2 logistic regression and random forests, nested stratified 5-fold cross-validation repeated 20 times, so hyperparameter tuning never sees the held-out fold. Tested against 200 label permutations. Every transformation, including the percentile mapping, module scoring and purity residualization, is fitted inside each outer training split, so no held-out tumor contributes to any transformation. Uncertainty is reported two ways: a percentile range across cross-validation repeats, and a patient-level bootstrap interval, which is the wider and more honest of the two.
+- **Phosphosites.** Protein-adjusted phosphosite abundance is each site residualized on its own total protein and on purity, which separates a phosphorylation shift from a change in protein abundance. This is a ratio, not a measure of stoichiometry, and we do not call it occupancy.
+- **Multiple testing.** Benjamini-Hochberg is applied within explicitly defined families and never across the whole study. The families are listed in the Methods of the paper and each figure panel states which one it belongs to.
+- **Module preservation.** Agreement between within-subtype correlation matrices is tested against a tumor-label permutation null, not against a null of zero correlation, because the gene pairs share genes and are not independent.
 
 Collagen-modifying enzymes are deliberately kept out of the hypoxia scores even though several are HIF targets, to avoid building the result into the exposure.
 
@@ -112,6 +137,8 @@ The exports in `data/` are included verbatim so the analysis runs without any ma
 - Random seeds are fixed in the cross-validation and bootstrap routines, so repeated runs give identical numbers.
 - `load.py` maps the deprecated gene symbol `COXFA4L2` back to `NDUFA4L2`, which is how cBioPortal currently exports it.
 - The phosphosite residue numbering follows CPTAC's own annotation. Confirm against the primary literature before drawing conclusions about a specific site.
+- The `MIA3` locus encodes TANGO1 and the shorter TANGO1-Short, and the `MIA2` locus encodes cTAGE5 and the longer TALI. The long and short products share their C-terminal regions, so a tryptic peptide from that region cannot be assigned to one product, and a residue number is only meaningful against a named sequence. The code and the paper use the HGNC gene symbols throughout for this reason.
+- `out/phospho_site_qc.csv` annotates every site with its residues, peptide multiplicity, sample size, missingness, and whether it has a characterized regulatory role in the literature.
 
 ## Citation
 

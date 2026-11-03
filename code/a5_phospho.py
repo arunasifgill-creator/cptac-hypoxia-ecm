@@ -20,10 +20,6 @@ for site in P.columns:
     rows.append(dict(site=site,gene=gene,n=n,rho_hyp=r1,p_hyp=p1,rho_perk=r2,p_perk=p2,d_TNBC_HER2=d,p_d=pv,protein=has,rho_hyp_occ=r3,p_hyp_occ=p3,d_occ=d4,p_d_occ=pv4))
 R=pd.DataFrame(rows); R['q_hyp']=bh(R.p_hyp.values); R['q_perk']=bh(R.p_perk.values); R['q_d']=bh(R.p_d.values)
 R.to_csv('../out/phospho_sites.csv',index=False)
-# occupancy subset: sites whose own total protein was quantified, used for Figure 7
-O=R[R.protein].copy(); O['q_occ']=bh(O.p_hyp_occ.values)
-O.to_csv('../out/phospho_occupancy.csv',index=False)
-print('occupancy sites',len(O),'sig q<.05',(O.q_occ<.05).sum())
 print('sites tested',len(R),'sig hyp q<.05',(R.q_hyp<.05).sum())
 key=['EIF4EBP1_T37t','EIF4EBP1_T46t','EIF4EBP1_S65s','EIF4EBP1_T70t','RPS6_S235s_S236s','RPS6_S236s','RPS6_S240s','RPS6_S244s','RPS6KB1_T421t_S424s','MTOR_S2481s',
  'ACACA_S80s','ACACA_S29s','PRKAA1_S501s_T505t','PRKAA1_T505t','PDHA1_S270s','PDHA1_S331s','EIF2S1_S52s','EIF2AK3_S555s','EIF2AK3_S715s','EIF2AK3_S1094s','ERN1_S724s',

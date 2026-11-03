@@ -34,7 +34,10 @@ def boxstrip(ax,x,title,ylabel,note=None,grp=None,order=ORDER,cols=COL,labels=No
     if note: ax.text(.02,.98,note,transform=ax.transAxes,va='top',fontsize=6.3,color=INK2)
 def adjp(x):
     xx=purity_adjust(x,pur); a=compare(xx,g); b=compare(xx,g,'TNBC','HR+/HER2-')
-    return f'vs HER2+: δ={a[1]:+.2f}, {fmt_p(a[0])}\nvs HR+: δ={b[1]:+.2f}, {fmt_p(b[0])}'
+    q=bh(np.array([a[0],b[0]]))
+    fq=lambda v:'q < 0.001' if v<.001 else f'q = {v:.3f}' if v<.01 else f'q = {v:.2f}'
+    return (f'vs HER2+: δ={a[1]:+.2f}, {fmt_p(a[0])}, {fq(q[0])}\n'
+            f'vs HR+: δ={b[1]:+.2f}, {fmt_p(b[0])}, {fq(q[1])}\nAdjusted for purity')
 
 # ---------- Figure 2: pathway overview ----------
 sections=[('Collagen & ECM',['Fibrillar collagen','Maturation','Maturation - deposition','MMP turnover','Collagen export','ER-phagy / ERAD','Mechanotransduction']),
@@ -67,7 +70,7 @@ for sec,ks in sections:
 ax.axvline(0,color=INK2,lw=.7)
 for v in (-.474,.474): ax.axvline(v,color=GRID,lw=.7,ls=(0,(3,2)))
 ax.set_yticks(yt); ax.set_yticklabels(yl); ax.tick_params(axis='y',length=0); ax.spines['left'].set_visible(False); ax.set_xlim(-1,1)
-ax.set_xlabel("Cliff's δ, TNBC vs comparator (purity-adjusted protein)\n← lower in TNBC          higher in TNBC →")
+ax.set_xlabel("Cliff's δ, TNBC vs comparator (protein, adjusted for purity), n = 117\n← lower in TNBC          higher in TNBC →")
 ax.legend(handles=[plt.Line2D([],[],marker='o',color=COL['HER2+'],label='vs HER2+ (n=15)',ms=5,lw=1.3),plt.Line2D([],[],marker='o',color=COL['HR+/HER2-'],label='vs HR+/HER2− (n=74)',ms=5,lw=1.3),
  plt.Line2D([],[],marker='o',color=INK2,mfc='white',label='open = BH q ≥ 0.05',ms=5,lw=0)],loc='upper center',bbox_to_anchor=(.45,-.09),ncol=3,fontsize=6.4,handlelength=1.4)
 ax.text(.474,ax.get_ylim()[1],' large',fontsize=6,color=INK2,va='bottom')
@@ -75,24 +78,31 @@ save(fig,'Fig2_pathway_overview')
 
 # ---------- Figure 4: export, TGF-b, ER redox ----------
 fig=plt.figure(figsize=(7.4,6.8)); gs=fig.add_gridspec(2,6,hspace=.62,wspace=1.3); gbot=gs[1,:].subgridspec(1,2,wspace=.75)
-for k,(nm,x,lab) in enumerate([('CREB3L1 (mRNA)',m['CREB3L1'],'log2 FPKM'),('TANGO1 / MIA3',p['MIA3'],'log2 protein ratio'),('cTAGE5 / MIA2',p['MIA2'],'log2 protein ratio')]):
+for k,(nm,x,lab) in enumerate([('CREB3L1 (mRNA)',m['CREB3L1'],'log2 FPKM'),('MIA3 (TANGO1)',p['MIA3'],'log2 protein ratio'),('MIA2 (cTAGE5/TALI)',p['MIA2'],'log2 protein ratio')]):
     ax=fig.add_subplot(gs[0,2*k:2*k+2]); boxstrip(ax,x,f'{"ABC"[k]}  {nm}',lab,adjp(x)); ax.set_ylim(top=ax.get_ylim()[1]+.25*(ax.get_ylim()[1]-ax.get_ylim()[0]))
 ax=fig.add_subplot(gbot[0]); genes=[('PLOD2','enz'),('P4HA1','enz'),('P4HA2','enz'),('SERPINH1','enz'),('LOX','enz'),('COL1A1','col'),('COL1A2','col'),('COL3A1','col')]
-vals=[(gn,kd)+pspear(p[gn],S['TGF-b response'],[pur,S['CAF']])[:2] for gn,kd in genes]
-pd.DataFrame(vals,columns=['gene','class','rho','p']).to_csv(f'{OUT}/Fig4D_tgfb_partial.csv',index=False)
+vals=[(gn,kd)+pspear(p[gn],S['TGF-b response'],[pur,prol,S['CAF']])[:2] for gn,kd in genes]
+_D=pd.DataFrame(vals,columns=['gene','class','rho','p']); _D['q']=bh(_D['p'].values)
+_D['n']=[pspear(p[gn],S['TGF-b response'],[pur,prol,S['CAF']])[2] for gn,_ in genes]
+_D.to_csv(f'{OUT}/Fig4D_tgfb_partial.csv',index=False)
 for j,(gn,kd,r,pv) in enumerate(vals):
-    ax.barh(-j,r,height=.62,color='#a63d12' if kd=='enz' else '#8f8e88'); ax.text(r+(.02 if r>=0 else -.02),-j,f'{r:+.2f}',va='center',ha='left' if r>=0 else 'right',fontsize=6.5)
+    qv=_D['q'].iloc[j]
+    ax.barh(-j,r,height=.62,color=('#a63d12' if kd=='enz' else '#8f8e88') if qv<.05 else ('#dba893' if kd=='enz' else '#c3c2b7'))
+    ax.text(r+(.02 if r>=0 else -.02),-j,f'{r:+.2f}',va='center',ha='left' if r>=0 else 'right',fontsize=6.5)
 ax.axvline(0,color=INK2,lw=.7); ax.set_yticks(range(0,-len(vals),-1)); ax.set_yticklabels([v[0] for v in vals]); ax.tick_params(axis='y',length=0); ax.spines['left'].set_visible(False)
-ax.set_xlim(-.5,.95); ax.set_xlabel('Partial Spearman ρ with TGF-β response\n(adjusted for purity + CAF; all 122)'); ax.set_title('D  TGF-β tracks enzymes,\n    not collagen')
-ax.legend(handles=[plt.Rectangle((0,0),1,1,color='#a63d12',label='Maturation enzymes'),plt.Rectangle((0,0),1,1,color='#8f8e88',label='Fibrillar collagens')],loc='lower right',fontsize=6.3)
+ax.set_xlim(-.5,.95); ax.set_xlabel('Partial Spearman ρ with TGF-β response, n = 122\nAdjusted for purity, proliferation, CAF'); ax.set_title('D  TGF-β tracks enzymes,\n    not collagen')
+ax.legend(handles=[plt.Rectangle((0,0),1,1,color='#a63d12',label='Maturation enzymes'),plt.Rectangle((0,0),1,1,color='#8f8e88',label='Fibrillar collagens'),plt.Rectangle((0,0),1,1,color='#c3c2b7',label='pale = BH q ≥ 0.05')],loc='lower right',fontsize=6.1)
 ax=fig.add_subplot(gbot[1]); ev=[]
 for gn in ['PRDX4','GPX7','GPX8','ERO1B','QSOX1','ERO1A']:
     r,pv,_=pspear(p[gn],S['Hypoxia consensus'],[pur,prol,S['CAF']]); d=compare(purity_adjust(p[gn],pur),g)[1]; ev.append((gn,r,pv,d))
-pd.DataFrame(ev,columns=['gene','rho_hypoxia','p','d_vs_HER2']).to_csv(f'{OUT}/Fig4E_er_redox.csv',index=False)
+_E=pd.DataFrame(ev,columns=['gene','rho_hypoxia','p','d_vs_HER2']); _E['q']=bh(_E['p'].values)
+_E.to_csv(f'{OUT}/Fig4E_er_redox.csv',index=False)
 for j,(gn,r,pv,d) in enumerate(ev):
-    ax.barh(-j,r,height=.62,color='#2a78d6' if pv<.05 else '#9ec5f4'); ax.text(max(r,0)+.01,-j,f'{r:+.2f} ({fmt_p(pv)})',va='center',fontsize=6.3)
+    qv=_E['q'].iloc[j]
+    ax.barh(-j,r,height=.62,color='#2a78d6' if qv<.05 else '#9ec5f4')
+    ax.text(max(r,0)+.01,-j,f'{r:+.2f} ({"q < 0.001" if qv<.001 else f"q = {qv:.3f}" if qv<.01 else f"q = {qv:.2f}"})',va='center',fontsize=6.1)
 ax.axvline(0,color=INK2,lw=.7); ax.set_yticks(range(0,-len(ev),-1)); ax.set_yticklabels([e[0] for e in ev]); ax.tick_params(axis='y',length=0); ax.spines['left'].set_visible(False)
-ax.set_xlim(-.15,.95); ax.set_xlabel('Partial Spearman ρ with hypoxia\n(adjusted for purity, proliferation, CAF; all 122)'); ax.set_title('E  ER redox enzymes\n    rise with hypoxia')
+ax.set_xlim(-.15,1.05); ax.set_xlabel('Partial Spearman ρ with hypoxia, n = 122\nAdjusted for purity, proliferation, CAF'); ax.set_title('E  ER redox enzymes\n    rise with hypoxia')
 save(fig,'Fig4_export_tgfb_redox')
 
 # ---------- Figure S2: ER/PR split ----------
@@ -102,25 +112,35 @@ g4[hr&(er=='positive')&(pr=='positive')]='ER+/PR+'; g4[hr&(er=='positive')&(pr==
 g4[hr&~((er=='positive')&pr.isin(['positive','negative']))]=np.nan
 O4=['TNBC','HER2+','ER+/PR−','ER+/PR+']; C4={'TNBC':'#eb6834','HER2+':'#2a78d6','ER+/PR−':'#7fcdb0','ER+/PR+':'#1baf7a'}
 fig,axs=plt.subplots(2,2,figsize=(6.6,6.4)); fig.subplots_adjust(wspace=.35,hspace=.55); axs=axs.ravel()
-rowsS2=[]
-for ax,(k,lab) in zip(axs,[('Hypoxia consensus','Hypoxia'),('Maturation - deposition','Maturation − deposition'),('UPR PERK/ATF4 targets','PERK/ATF4 targets'),('Proliferation','Proliferation')]):
+rowsS2=[]; _mods=[('Hypoxia consensus','Hypoxia'),('Maturation - deposition','Maturation − deposition'),('UPR PERK/ATF4 targets','PERK/ATF4 targets'),('Proliferation','Proliferation')]
+for k,lab in _mods:
     xa=purity_adjust(S[k],pur); a=compare(xa,g4,'ER+/PR−','ER+/PR+'); b=compare(xa,g4,'TNBC','ER+/PR−')
-    rowsS2.append((k,a[1],a[0],b[1],b[0]))
-    boxstrip(ax,S[k],f'{"ABCD"[list(axs).index(ax)]}  {lab}','Module score',f'PR− vs PR+: δ={a[1]:+.2f}, {fmt_p(a[0])}\nTNBC vs PR−: δ={b[1]:+.2f}, {fmt_p(b[0])}',grp=g4,order=O4,cols=C4,labels=['TNBC','HER2+','ER+/\nPR−','ER+/\nPR+'])
-    ax.set_ylim(top=ax.get_ylim()[1]+.3*(ax.get_ylim()[1]-ax.get_ylim()[0])); ax.title.set_fontsize(8.2)
-    if list(axs).index(ax)%2: ax.set_ylabel('')
-pd.DataFrame(rowsS2,columns=['module','d_PRneg_vs_PRpos','p1','d_TNBC_vs_PRneg','p2']).to_csv(f'{OUT}/FigS2_er_pr.csv',index=False)
+    rowsS2.append([k,a[1],a[0],b[1],b[0]])
+_S2=pd.DataFrame(rowsS2,columns=['module','d_PRneg_vs_PRpos','p1','d_TNBC_vs_PRneg','p2'])
+_S2['q1']=bh(_S2['p1'].values); _S2['q2']=bh(_S2['p2'].values)
+fq=lambda v:'q < 0.001' if v<.001 else f'q = {v:.3f}' if v<.01 else f'q = {v:.2f}'
+for i,(ax,(k,lab)) in enumerate(zip(axs,_mods)):
+    r=_S2.iloc[i]
+    boxstrip(ax,S[k],f'{"ABCD"[i]}  {lab}','Module score',
+             f'PR− vs PR+: δ={r.d_PRneg_vs_PRpos:+.2f}, {fmt_p(r.p1)}, {fq(r.q1)}\nTNBC vs PR−: δ={r.d_TNBC_vs_PRneg:+.2f}, {fmt_p(r.p2)}, {fq(r.q2)}\nAdjusted for purity; BH q across the 4 modules',
+             grp=g4,order=O4,cols=C4,labels=['TNBC','HER2+','ER+/\nPR−','ER+/\nPR+'])
+    ax.set_ylim(top=ax.get_ylim()[1]+.38*(ax.get_ylim()[1]-ax.get_ylim()[0])); ax.title.set_fontsize(8.2)
+    if i%2: ax.set_ylabel('')
+_S2.to_csv(f'{OUT}/FigS2_er_pr.csv',index=False)
 save(fig,'FigS2_er_pr_split')
 
 # ---------- Figure S3: iron import vs hypoxia ----------
 fig,ax=plt.subplots(figsize=(3.6,2.6)); iv=[]
 for gn in ['SLC11A2','TFRC','STEAP3','FTH1','FTL']:
-    r,pv,_=pspear(p[gn],S['Hypoxia consensus'],[pur,prol]); iv.append((gn,r,pv))
-pd.DataFrame(iv,columns=['gene','rho','p']).to_csv(f'{OUT}/FigS3_iron_hypoxia.csv',index=False)
-for j,(gn,r,pv) in enumerate(iv):
-    ax.barh(-j,r,height=.62,color='#2a78d6' if gn in ('SLC11A2','TFRC','STEAP3') else '#8f8e88'); ax.text(max(r,0)+.01,-j,f'{r:+.2f} ({fmt_p(pv)})',va='center',fontsize=6.3)
+    r,pv,nn=pspear(p[gn],S['Hypoxia consensus'],[pur,prol,S['CAF']]); iv.append((gn,r,pv,nn))
+_I=pd.DataFrame(iv,columns=['gene','rho','p','n']); _I['q']=bh(_I['p'].values)
+_I.to_csv(f'{OUT}/FigS3_iron_hypoxia.csv',index=False)
+for j,(gn,r,pv,nn) in enumerate(iv):
+    qv=_I['q'].iloc[j]
+    ax.barh(-j,r,height=.62,color=('#2a78d6' if gn in ('SLC11A2','TFRC','STEAP3') else '#8f8e88') if qv<.05 else ('#9ec5f4' if gn in ('SLC11A2','TFRC','STEAP3') else '#c3c2b7'))
+    ax.text(max(r,0)+.01,-j,f'{r:+.2f} ({"q < 0.001" if qv<.001 else f"q = {qv:.3f}" if qv<.01 else f"q = {qv:.2f}"}, n={nn})',va='center',fontsize=6.0)
 ax.axvline(0,color=INK2,lw=.7); ax.set_yticks(range(0,-len(iv),-1)); ax.set_yticklabels(['SLC11A2','TFRC','STEAP3','FTH1','FTL']); ax.tick_params(axis='y',length=0); ax.spines['left'].set_visible(False)
-ax.set_xlim(-.1,.95); ax.set_xlabel('Partial Spearman ρ with hypoxia\n(adjusted for purity + proliferation; all 122)')
-ax.legend(handles=[plt.Rectangle((0,0),1,1,color='#2a78d6',label='Iron import'),plt.Rectangle((0,0),1,1,color='#8f8e88',label='Iron storage')],loc='lower right',fontsize=6.3)
+ax.set_xlim(-.1,1.25); ax.set_xlabel('Partial Spearman ρ with hypoxia, n = 122\nAdjusted for purity, proliferation, CAF')
+ax.legend(handles=[plt.Rectangle((0,0),1,1,color='#2a78d6',label='Iron import'),plt.Rectangle((0,0),1,1,color='#8f8e88',label='Iron storage'),plt.Rectangle((0,0),1,1,color='#c3c2b7',label='pale = BH q ≥ 0.05')],loc='lower right',fontsize=6.0)
 save(fig,'FigS3_iron_hypoxia')
-print(R.round(3).to_string(index=False)); print(pd.DataFrame(ev)); print(pd.DataFrame(iv)); print(pd.DataFrame(rowsS2))
+print(R.round(3).to_string(index=False)); print(_E.round(3).to_string(index=False)); print(_I.round(3).to_string(index=False)); print(_S2.round(3).to_string(index=False)); print(_D.round(3).to_string(index=False))

@@ -51,7 +51,7 @@ cb=fig.colorbar(im,ax=axH,fraction=.022,pad=.015,ticks=[-1,-.5,0,.5,1])
 cb.set_label('Spearman ρ',fontsize=7); cb.ax.tick_params(labelsize=6.5,length=2); cb.outline.set_visible(False)
 axH.legend(handles=[plt.Rectangle((0,0),1,1,color=MCOL[k],label=k) for k in MOD],
            loc='lower center',bbox_to_anchor=(.5,1.025),ncol=5,fontsize=6.2,columnspacing=1.2,handlelength=1.1)
-axH.set_title('A  Co-expression architecture (protein, purity-adjusted, all 122 tumors)',pad=34)
+axH.set_title('A  Co-expression architecture (protein, adjusted for purity, n = 122 tumors)',pad=34)
 
 # B: module preservation TNBC vs HR+
 axB=fig.add_subplot(gs[1,0])
@@ -61,13 +61,21 @@ R1=pd.DataFrame({x:purity_adjust(p[x][i1],pur[i1]) for x in core_genes}).corr('s
 R2=pd.DataFrame({x:purity_adjust(p[x][i2],pur[i2]) for x in core_genes}).corr('spearman')
 iu=np.triu_indices(len(core_genes),1); x1,y1=R1.values[iu],R2.values[iu]
 rr,pp=stats.spearmanr(x1,y1)
+# Gene pairs are not independent, so the correlation between the two pairwise-rho vectors cannot be
+# tested against a null of zero. The null here permutes SUBTYPE LABELS ACROSS TUMOURS, keeping the
+# group sizes, and asks how well two random splits of the same sizes agree (see a11_robustness.py).
+PV=pd.read_csv(os.path.join(OUT,'..','out','preservation_permutation.csv')).iloc[0]
+null_mean,null_lo,null_hi=PV.perm_null_mean,PV.perm_lo,PV.perm_hi
+perm_p,obs_lo,obs_hi=PV.perm_p,PV.boot_lo,PV.boot_hi
+assert int(PV.n_proteins)==len(core_genes), 'Figure 5B and a11_robustness.py must use the same genes'
 axB.axhline(0,color=GRID,lw=.6); axB.axvline(0,color=GRID,lw=.6)
 axB.plot([-.25,1],[-.25,1],color=INK2,lw=.8,ls=(0,(3,2)),zorder=1)
 axB.scatter(x1,y1,s=11,color='#a63d12',alpha=.7,lw=.3,edgecolor='white',zorder=3)
 axB.set_xlim(-.25,1); axB.set_ylim(-.25,1); axB.set_aspect('equal')
-axB.set_xlabel('Pairwise ρ within TNBC (n=28)'); axB.set_ylabel('Pairwise ρ within\nHR+/HER2− (n=74)')
-axB.set_title('B  Collagen module structure is preserved')
-axB.text(.04,.96,f'ρ = {rr:+.2f}, p < 0.001\n{len(x1)} gene pairs',transform=axB.transAxes,va='top',fontsize=6.8,color=INK2)
+axB.set_xlabel(f'Pairwise ρ within TNBC (n={int(i1.sum())})'); axB.set_ylabel(f'Pairwise ρ within\nHR+/HER2− (n={int(i2.sum())})')
+axB.set_title('B  Module structure differs between subtypes')
+axB.text(.03,.97,f'observed ρ = {rr:+.2f} ({obs_lo:.2f}–{obs_hi:.2f})\npermuted subtype labels: {null_mean:.2f} ({null_lo:.2f}–{null_hi:.2f})\npermutation p = {perm_p:.3f}, {len(core_genes)} genes, {len(x1)} pairs',
+          transform=axB.transAxes,va='top',fontsize=5.9,color=INK2)
 
 # C: module set-point
 axC=fig.add_subplot(gs[1,1])
@@ -84,11 +92,11 @@ for j,k in enumerate(mods):
         lo,hi=np.percentile(v,[25,75]); axC.plot([j+(q-1)*w]*2,[lo,hi],color=INK,lw=.9)
 axC.set_xticks(range(len(mods)))
 axC.set_xticklabels(['Fibrillar\ncollagen','Maturation','UPR\nchaperones','UPR\ntargets','Hypoxia'],fontsize=6.5)
-axC.set_ylabel('Module score\n(median, IQR)'); axC.set_ylim(0,.95)
+axC.set_ylabel('Module score\n(median, IQR)\nn = 28 / 15 / 74'); axC.set_ylim(0,.95)
 axC.yaxis.grid(True,color=GRID,lw=.5); axC.set_axisbelow(True)
 axC.set_title('C  Module set-points by subtype')
 axC.legend(handles=[plt.Rectangle((0,0),1,1,color=COLG[k],label=k) for k in COLG],loc='upper center',bbox_to_anchor=(.5,-.22),ncol=3,fontsize=6.2,columnspacing=1.0,handlelength=1.1)
-(lambda *a, **k: None)('Figure 5. Collagen processing and ER stress form separable modules that TNBC retains at a shifted set-point',
+(lambda *a, **k: None)('Figure 5. Collagen processing and ER stress form separable modules whose set-point and internal structure both differ in TNBC',
              x=.02,ha='left',fontsize=9.5,fontweight='bold',y=.995)
 for ext in ('png','pdf'): fig.savefig(f'{OUT}/Fig5_correlation_architecture.{ext}',bbox_inches='tight',facecolor='white')
 print('fig5 done; module preservation rho=',round(rr,3))

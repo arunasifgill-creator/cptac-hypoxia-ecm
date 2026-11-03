@@ -31,9 +31,14 @@ rows=[]
 for k,s in S.items():
     if k.startswith('Hypoxia'): continue
     r1,p1,_=pspear(s,H,[pur]); r2,p2,_=pspear(s,H,[pur,S['Proliferation']])
-    rows.append((k,r1,p1,r2,p2))
-A=pd.DataFrame(rows,columns=['module','rho_pur','p_pur','rho_pur_prolif','p_pur_prolif'])
+    # primary specification used in Figures 3 and 4: purity + proliferation + CAF content.
+    # CAF itself cannot be adjusted for itself, so it is left out of the primary column.
+    if k=='CAF': r3,p3=np.nan,np.nan
+    else: r3,p3,_=pspear(s,H,[pur,S['Proliferation'],S['CAF']])
+    rows.append((k,r1,p1,r2,p2,r3,p3))
+A=pd.DataFrame(rows,columns=['module','rho_pur','p_pur','rho_pur_prolif','p_pur_prolif','rho_pur_prolif_caf','p_pur_prolif_caf'])
 A['q_pur_prolif']=bh(A.p_pur_prolif.values)
+A['q_pur_prolif_caf']=bh(A.p_pur_prolif_caf.values)
 print(A.sort_values('rho_pur_prolif',ascending=False).round(3).to_string(index=False))
 A.to_csv('../out/hypoxia_axis.csv',index=False)
 # hypoxia sub-scores vs each other and prolif
