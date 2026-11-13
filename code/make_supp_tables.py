@@ -101,6 +101,27 @@ DESC={
  'S29_batch_qc_modules':'Every module score tested across the 15 TMT plexes with BH q',
  'S30_plex_by_subtype':'Contingency table of clinical group by TMT plex',
 }
+# Normalize label spelling to American English before writing, so the workbook matches the
+# manuscript. Only display labels change, never a numeric value or a gene symbol.
+SPELL = {'Ferroptosis defence': 'Ferroptosis defense', 'tumours': 'tumors', 'Tumours': 'Tumors',
+         'tumour': 'tumor', 'Tumour': 'Tumor', 'defence': 'defense', 'Defence': 'Defense'}
+def _fix(v):
+    if not isinstance(v, str):
+        return v
+    for a, b in SPELL.items():
+        v = v.replace(a, b)
+    return v
+_clean = []
+for _n, _df in sheets:
+    _df = _df.copy()
+    _df.columns = [_fix(c) for c in _df.columns]
+    for _c in _df.columns:
+        # pandas 2 gives text columns dtype 'str', not 'object', so do not filter on dtype.
+        # _fix returns non-strings unchanged, which makes this safe for numeric columns too.
+        _df[_c] = _df[_c].map(_fix)
+    _clean.append((_n, _df))
+sheets = _clean
+
 with pd.ExcelWriter(OUT, engine='openpyxl') as w:
     idx = pd.DataFrame([{'sheet':n,'description':DESC.get(n,''),'rows':len(df),'columns':df.shape[1]} for n,df in sheets])
     assert all(DESC.get(n) for n,_ in sheets), 'every sheet needs a description'

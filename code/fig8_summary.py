@@ -31,7 +31,7 @@ axA = fig.add_subplot(gs[0]); axA.set_xlim(0, 10); axA.set_ylim(0, 5.0); axA.axi
 axA.text(-0.1, 4.90, 'A', fontsize=12, fontweight='bold', va='top')
 axA.text(0.42, 4.78, 'A reciprocal model, not a sequence', fontsize=9, fontweight='bold', va='top', color=INK)
 
-box(axA, 0.55, 3.05, 2.25, 0.95, 'Tumour\nhypoxia', '#fdf0d0', HYP, fs=9, bold=True)
+box(axA, 0.55, 3.05, 2.25, 0.95, 'Tumor\nhypoxia', '#fdf0d0', HYP, fs=9, bold=True)
 box(axA, 0.55, 1.05, 2.25, 0.95, 'ER stress\nPERK/ATF4, ER redox', '#efe7f8', ERS, fs=7.8, bold=False)
 
 # mutual activation
@@ -49,7 +49,7 @@ arrow(axA, (2.80, 1.45), (6.35, 2.25), color=ERS, lw=1.2, ls=(0,(4,2)), rad=-0.0
 axA.text(4.55, 1.38, 'smaller, magnitude unresolved', ha='center', fontsize=7.0, color=ERS)
 
 axA.add_patch(Rectangle((0.3, 0.10), 9.4, 0.72, fc='#faf9f6', ec=GRID, lw=0.8, zorder=1))
-axA.text(0.52, 0.46, 'Cross-sectional associations in 117 tumours. Fitting the model in either orientation gives a comparable fit, '
+axA.text(0.52, 0.46, 'Cross-sectional associations in 117 tumors. Fitting the model in either orientation gives a comparable fit, '
                      'so the\ndirection is not identified; the arrows mark the relationships tested, not a demonstrated sequence.',
          fontsize=6.9, va='center', color=INK2, linespacing=1.5)
 
@@ -61,7 +61,7 @@ axB.text(0.42, 5.86, 'Where the measured proteins sit', fontsize=9, fontweight='
 # cell body
 axB.add_patch(FancyBboxPatch((0.3, 0.30), 6.55, 5.05, boxstyle='round,pad=0.02,rounding_size=0.12',
                              fc='#fcfcfa', ec=INK2, lw=1.0, zorder=1))
-axB.text(2.45, 5.12, 'Tumour cell', fontsize=7.6, color=INK2, style='italic')
+axB.text(2.45, 5.12, 'Tumor cell', fontsize=7.6, color=INK2, style='italic')
 # ER
 axB.add_patch(FancyBboxPatch((0.62, 1.52), 5.95, 3.30, boxstyle='round,pad=0.02,rounding_size=0.10',
                              fc='#f4f1fa', ec=ERS, lw=1.0, zorder=2))
@@ -78,7 +78,7 @@ arrow(axB, (2.10, 2.98), (2.10, 3.55), color=ERS, lw=1.2, ls=(0,(3,2)))
 arrow(axB, (4.62, 2.98), (4.20, 3.55), color=ERS, lw=1.2, ls=(0,(3,2)))
 
 # export
-box(axB, 2.52, 0.60, 2.98, 0.92, 'COPII export\nTANGO1 (MIA3)  cTAGE5 (MIA2)\nSEC31A', '#eaf1fb', DN, fs=7.0)
+box(axB, 2.52, 0.60, 2.98, 0.92, 'COPII export\nMIA3 (TANGO1)  MIA2 (cTAGE5)\nSEC31A', '#eaf1fb', DN, fs=7.0)
 arrow(axB, (4.01, 3.55), (4.01, 1.52), color=INK2, lw=1.2)
 
 # ECM compartment

@@ -30,7 +30,7 @@ qA=bh(np.array([a[0],b[0]]))
 def fmtq(v): return 'q < 0.001' if v<.001 else f'q = {v:.3f}' if v<.01 else f'q = {v:.2f}'
 ax.set_title('A  Hypoxia by subtype'); ax.text(.03,.98,f'vs HER2+ δ={a[1]:+.2f},\n  {fmtp(a[0])}, {fmtq(qA[0])}\nvs HR+ δ={b[1]:+.2f},\n  {fmtp(b[0])}, {fmtq(qA[1])}\nAdjusted for purity',transform=ax.transAxes,va='top',fontsize=5.6,color=INK2)
 ax.set_ylim(top=ax.get_ylim()[1]+.1); ax.yaxis.grid(True,color=GRID,lw=.5); ax.set_axisbelow(True)
-# B: PLOD2 vs hypoxia scatter, all tumors coloured by subtype
+# B: PLOD2 vs hypoxia scatter, all tumors colored by subtype
 ax=fig.add_subplot(gs[0,1]); x=resid(H,[pur,S['Proliferation'],S['CAF']]); y=resid(p['PLOD2'],[pur,S['Proliferation'],S['CAF']])
 for k in ORDER[::-1]:
     i=(g==k)&x.notna()&y.notna(); ax.scatter(x[i],y[i],s=10,color=COL[k],alpha=.8,lw=.3,edgecolor='white',label=k)

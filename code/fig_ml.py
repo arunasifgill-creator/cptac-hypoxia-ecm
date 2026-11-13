@@ -45,7 +45,7 @@ for k,task in enumerate(['TNBC vs all other','TNBC vs HER2+']):
     ax.set_yticks(range(len(D)))
     ax.set_yticklabels([s.replace('Ferroptosis defence','Ferroptosis defense').replace('UPR canonical chaperones','Chaperones').replace('UPR ','').replace(' targets','') for s in D.module],fontsize=6.4)
     ax.tick_params(axis='y',length=0)
-    ax.axvline(0,color=INK2,lw=.6); ax.set_xlabel('Standardised L2 coefficient\n(mean ± SD over 100 outer folds)')
+    ax.axvline(0,color=INK2,lw=.6); ax.set_xlabel('Standardized L2 coefficient\n(mean ± SD over 100 outer folds)')
     ax.set_title(f'{"CD"[k]}  Feature weights, {task}')
 
 h=[plt.Rectangle((0,0),1,1,color=c_,label=l) for c_,l in

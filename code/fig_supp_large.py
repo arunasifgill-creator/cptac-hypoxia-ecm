@@ -2,7 +2,7 @@
 could not read them at the size they occupy in the main figures.
 
   Figure S4  the co-expression matrix of Figure 5A, one page, with readable gene labels
-  Figure S5  the classifier coefficients of Figure 6C,D, one page, every feature labelled
+  Figure S5  the classifier coefficients of Figure 6C,D, one page, every feature labeled
   Figure S6  every export-machinery phosphosite of Figure 7A, with n and BH q printed per site
 """
 import os, re, numpy as np, pandas as pd, matplotlib, warnings; warnings.filterwarnings('ignore')
@@ -64,7 +64,7 @@ col = ['task']; tasks = list(dict.fromkeys(C['task']))
 mcol, scol, fcol = 'coef', ['sd'], 'module'
 fig, axs = plt.subplots(1, len(tasks), figsize=(7.4, 7.2), sharex=True)
 axs = np.atleast_1d(axs)
-lab = {'UPR canonical chaperones': 'Chaperones', 'UPR ATF6 targets': 'ATF6 targets',
+lab = {'Ferroptosis defence': 'Ferroptosis defense', 'UPR canonical chaperones': 'Chaperones', 'UPR ATF6 targets': 'ATF6 targets',
        'UPR IRE1/XBP1 targets': 'IRE1/XBP1 targets', 'UPR PERK/ATF4 targets': 'PERK/ATF4 targets',
        'Maturation - deposition': 'Maturation − deposition', 'TGF-b response': 'TGF-β response'}
 for ax, t in zip(axs, tasks):
@@ -84,7 +84,7 @@ for ax, t in zip(axs, tasks):
     ax.set_title(f'{"AB"[list(tasks).index(t)]}  {t}', fontsize=9)
     ax.xaxis.grid(True, color=GRID, lw=.5); ax.set_axisbelow(True)
 axs[0].set_xlabel('Standardized coefficient (mean ± SD across outer folds)')
-fig.suptitle('Classifier coefficients, drawn full page. Same models as Figure 6C,D; every feature is labelled.\n'
+fig.suptitle('Classifier coefficients, drawn full page. Same models as Figure 6C,D; every feature is labeled.\n'
              'All transformations were fitted inside training folds only.', x=.02, ha='left', fontsize=9, y=1.015)
 fig.subplots_adjust(wspace=.75)
 save(fig, 'FigS5_classifier_coefficients_large')
