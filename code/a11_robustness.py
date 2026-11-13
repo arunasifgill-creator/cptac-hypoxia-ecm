@@ -45,10 +45,10 @@ for _ in range(1000):
 print('='*92); print('MODULE PRESERVATION, TUMOUR-LEVEL PERMUTATION'); print('='*92)
 print(f'{len(core)} proteins, {npairs} gene pairs')
 print(f'observed between-subtype correlation of pairwise rho: {obs_r:+.3f}')
-print(f'tumour-label permutation null (n={len(null)}): mean {null.mean():+.3f}, '
+print(f'tumor-label permutation null (n={len(null)}): mean {null.mean():+.3f}, '
       f'2.5-97.5th {np.percentile(null,2.5):+.3f} to {np.percentile(null,97.5):+.3f}')
 print(f'permutation p = {p_perm:.4f}')
-print(f'tumour bootstrap 95% CI for the observed statistic: {np.percentile(bt,2.5):+.3f} to {np.percentile(bt,97.5):+.3f}')
+print(f'tumor bootstrap 95% CI for the observed statistic: {np.percentile(bt,2.5):+.3f} to {np.percentile(bt,97.5):+.3f}')
 pd.DataFrame([dict(n_proteins=len(core), n_pairs=npairs, observed=obs_r,
                    perm_null_mean=null.mean(), perm_lo=np.percentile(null,2.5), perm_hi=np.percentile(null,97.5),
                    perm_p=p_perm, boot_lo=np.percentile(bt,2.5), boot_hi=np.percentile(bt,97.5))]
@@ -85,5 +85,5 @@ H = pd.DataFrame(rows); H['q']=bh(H.p.values); H.to_csv('../out/her2_definition.
 print()
 print(H.pivot_table(index=['definition','n_HER2'], columns='module', values='d_TNBC_vs_HER2').round(2).to_string())
 print()
-print('Normal-like tumours:', int(nl.sum()), '| excluded from all three definitions')
+print('Normal-like tumors:', int(nl.sum()), '| excluded from all three definitions')
 print('\nsaved preservation_permutation.csv, her2_definition.csv')

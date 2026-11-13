@@ -47,7 +47,7 @@ def run(sub,label,cov_names=('purity','proliferation'),B=5000):
     return pd.DataFrame(rows)
 
 allidx=p.index
-R1=run(allidx,'All tumours (n=122)')
+R1=run(allidx,'All tumors (n=122)')
 R2=run(g[g=='TNBC'].index,'TNBC only',B=3000)
 R=pd.concat([R1,R2]); R.to_csv('../out/mediation.csv',index=False)
 cols=['set','outcome','n','total','direct','direct_lo','direct_hi','indirect','ind_lo','ind_hi','prop_mediated']

@@ -1,4 +1,4 @@
-"""Fold-safe standardised logistic coefficients for Figure 6C,D."""
+"""Fold-safe standardized logistic coefficients for Figure 6C,D."""
 import numpy as np, pandas as pd, warnings; warnings.filterwarnings('ignore')
 from sklearn.model_selection import StratifiedKFold
 from a6_ml_foldsafe import build_features, models, g, SETS
