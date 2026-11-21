@@ -1,7 +1,5 @@
 # Direct and ER Stress-Associated Components of the Hypoxia-Collagen Relationship in Breast Cancer
 
-Analysis code for the CPTAC BRCA 2020 proteogenomic study.
-
 Analysis code and data for:
 
 > **Direct and ER Stress-Associated Components of the Hypoxia-Collagen Relationship in Breast Cancer: An Interpretable Proteogenomic and Machine Learning Analysis**
