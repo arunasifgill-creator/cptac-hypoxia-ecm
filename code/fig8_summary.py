@@ -49,7 +49,7 @@ arrow(axA, (2.80, 1.45), (6.35, 2.25), color=ERS, lw=1.2, ls=(0,(4,2)), rad=-0.0
 axA.text(4.55, 1.38, 'smaller, magnitude unresolved', ha='center', fontsize=7.0, color=ERS)
 
 axA.add_patch(Rectangle((0.3, 0.10), 9.4, 0.72, fc='#faf9f6', ec=GRID, lw=0.8, zorder=1))
-axA.text(0.52, 0.46, 'Cross-sectional associations in 117 tumors. Fitting the model in either orientation gives a comparable fit, '
+axA.text(0.52, 0.46, 'Cross-sectional associations in all 122 tumors. Fitting the model in either orientation gives a comparable fit, '
                      'so the\ndirection is not identified; the arrows mark the relationships tested, not a demonstrated sequence.',
          fontsize=6.9, va='center', color=INK2, linespacing=1.5)
 

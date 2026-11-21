@@ -1,24 +1,26 @@
-# Hypoxia and collagen biosynthesis in breast cancer (CPTAC BRCA 2020)
+# Direct and ER Stress-Associated Components of the Hypoxia-Collagen Relationship in Breast Cancer
+
+Analysis code for the CPTAC BRCA 2020 proteogenomic study.
 
 Analysis code and data for:
 
-> **Hypoxia Is Associated with a Shift from Collagen Deposition toward Collagen Processing Capacity in Breast Cancer: An Interpretable Proteogenomic and Machine Learning Analysis**
+> **Direct and ER Stress-Associated Components of the Hypoxia-Collagen Relationship in Breast Cancer: An Interpretable Proteogenomic and Machine Learning Analysis**
 > Arun Asif, Zeeshan, Jaeyoung Choi. *Genes* (under revision).
 
-Everything in the paper, every figure, every table and every number quoted in the text, is regenerated from the raw exports in `data/` by a single command.
+Every figure, table and number from the CPTAC analysis is regenerated from the raw exports in `data/` by a single command. The transcript-level replication in TCGA-BRCA (Section 3.13) draws on a separate cohort and is not reproduced by this repository.
 
 ---
 
 ## What the study does
 
-The collagen-modifying enzymes sit inside the endoplasmic reticulum, which is also where hypoxia triggers the unfolded protein response. That raises a question nobody had tested in patient tissue at the protein level: does hypoxia reshape collagen biosynthesis directly, or does it work through ER stress?
+The collagen-modifying enzymes sit inside the endoplasmic reticulum, which is also where hypoxia triggers the unfolded protein response. That raises a question nobody had tested in patient tissue at the protein level: is the association between hypoxia and collagen biosynthesis mediated by ER stress, or not?
 
 This repository answers it two independent ways on 122 treatment-naive primary breast tumors:
 
-1. **Parallel mediation.** A hypoxia score is the exposure, ER stress modules are competing mediators, collagen enzymes are the outcome. Bootstrap confidence intervals separate the direct route from the mediated one.
+1. **Parallel mediation.** A hypoxia score is the exposure, ER stress modules are competing mediators, collagen enzymes are the outcome. Bootstrap confidence intervals separate the component mediated by the measured ER stress modules from the component that is not.
 2. **Interpretable classifiers.** Nested cross-validation asks whether ER stress features carry any information that hypoxia and ECM features do not.
 
-The two methods agree, which is the point: most of the association is direct, and ER stress is largely redundant once hypoxia is known.
+The two methods agree that the component not mediated by the measured ER stress modules is the larger of the two. The size of the mediated component is unresolved, since it is 28 to 42% with the protein modules and falls to 4 to 9% for the PERK/ATF4 arm when ATF4 output is measured more specifically. The classifiers find no information in ER stress features beyond hypoxia and ECM features for TNBC against all other tumors, though ECM features do add information against HER2+ tumors.
 
 These are cross-sectional associations between protein abundances. They do not establish causal direction and they do not measure collagen maturation or secretion.
 
@@ -89,7 +91,7 @@ figures/             600 dpi PNG + PDF, plus the source values behind each panel
 | 4 | `figs_final.py` | Collagen export, TGF-beta response and ER redox |
 | 5 | `fig_cluster.py` | Correlation architecture of the gene panel |
 | 6 | `fig_ml.py` | Classifier performance by feature set |
-| 7 | `fig_phospho.py` | Phosphosite abundance along the export route |
+| 7 | `fig_phospho.py` | Phosphosite abundance along the export pathway |
 | 8 | `fig8_summary.py` | Summary schematic of the relationships examined |
 | S1 | `fig_s1_cohort.py` | Cohort composition, data quality and batch structure |
 | S2 | `figs_final.py` | Hormone receptor subgroups |
