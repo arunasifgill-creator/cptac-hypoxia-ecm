@@ -129,11 +129,14 @@ for k in stack:
     v=CT[k].values if k in CT else np.zeros(len(CT))
     axG.bar(range(len(CT)),v,bottom=bot,color=cg[k],width=.7,linewidth=.5,edgecolor='white',
             label=k.replace('HR+/HER2-','HR+/HER2−')); bot+=v
-chi2,p_chi,dof,_=stats.chi2_contingency(CT[[k for k in stack if k in CT]].values)
+# The test uses the three assigned clinical groups only. The Normal-like tumors are drawn in the bars but are not a group.
+CT3=CT[['TNBC','HER2+','HR+/HER2-']]; CT3=CT3.loc[CT3.sum(1)>0]
+chi2,p_chi,dof,_exp=stats.chi2_contingency(CT3.values)
+MC=pd.read_csv(f'{OUT}/../out/plex_subtype_test.csv').iloc[0]
 axG.set_xticks(range(len(CT))); axG.set_xticklabels(pl,fontsize=6)
 axG.set_xlabel('TMT plex'); axG.set_ylabel('Tumors')
 axG.set_title('G  Subtypes are spread across the 15 TMT plexes')
-axG.text(.01,.97,f'χ² = {chi2:.1f}, df = {dof}, {fmtp(p_chi)}\nMonte Carlo p = 0.64 (5000 permutations), n = 122',transform=axG.transAxes,va='top',fontsize=6,color=INK2)
+axG.text(.01,.97,f'three assigned groups, n = {int(CT3.values.sum())}: χ² = {chi2:.1f}, df = {dof}\nMonte Carlo p = {MC.p_monte_carlo:.2f} (5000 label permutations)',transform=axG.transAxes,va='top',fontsize=6,color=INK2)
 axG.set_ylim(top=bot.max()+2.6); axG.set_yticks(range(0,int(bot.max())+1,2))
 axG.legend(fontsize=6,ncol=4,loc='upper center',bbox_to_anchor=(.5,-.20),handlelength=1.0,columnspacing=.9)
 
@@ -151,6 +154,6 @@ axH.set_title('H  Hypoxia by plex')
 axH.text(.03,.97,f'Kruskal–Wallis {fmtp(rowH["p"])}\n{fmtq(rowH["q"])}, n = 122',transform=axH.transAxes,va='top',fontsize=6,color=INK2)
 axH.yaxis.grid(True,color=GRID,lw=.5); axH.set_axisbelow(True)
 
-for ext in ('png','pdf'): fig.savefig(f'{OUT}/FigS1_cohort_quality.{ext}',bbox_inches='tight',facecolor='white')
+for ext in ('png','pdf','jpg'): fig.savefig(f'{OUT}/FigS1_cohort_quality.{ext}',dpi=600,bbox_inches='tight',facecolor='white')
 print('S1 done; concordance median',round(C.rho.median(),2),'| plex-subtype p=',round(p_chi,3),
       '| modules q<0.05 across plexes:',int((B.q<0.05).sum()),'of',len(B))

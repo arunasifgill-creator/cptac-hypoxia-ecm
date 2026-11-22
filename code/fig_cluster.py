@@ -67,6 +67,7 @@ rr,pp=stats.spearmanr(x1,y1)
 PV=pd.read_csv(os.path.join(OUT,'..','out','preservation_permutation.csv')).iloc[0]
 null_mean,null_lo,null_hi=PV.perm_null_mean,PV.perm_lo,PV.perm_hi
 perm_p,obs_lo,obs_hi=PV.perm_p,PV.boot_lo,PV.boot_hi
+pct_obs=PV.percentile_of_observed
 assert int(PV.n_proteins)==len(core_genes), 'Figure 5B and a11_robustness.py must use the same genes'
 axB.axhline(0,color=GRID,lw=.6); axB.axvline(0,color=GRID,lw=.6)
 axB.plot([-.25,1],[-.25,1],color=INK2,lw=.8,ls=(0,(3,2)),zorder=1)
@@ -74,8 +75,8 @@ axB.scatter(x1,y1,s=11,color='#a63d12',alpha=.7,lw=.3,edgecolor='white',zorder=3
 axB.set_xlim(-.25,1); axB.set_ylim(-.25,1); axB.set_aspect('equal')
 axB.set_xlabel(f'Pairwise ρ within TNBC (n={int(i1.sum())})'); axB.set_ylabel(f'Pairwise ρ within\nHR+/HER2− (n={int(i2.sum())})')
 axB.set_title('B  Module structure differs between subtypes')
-axB.text(.03,.97,f'observed ρ = {rr:+.2f} ({obs_lo:.2f}–{obs_hi:.2f})\npermuted subtype labels: {null_mean:.2f} ({null_lo:.2f}–{null_hi:.2f})\npermutation p = {perm_p:.3f}, {len(core_genes)} genes, {len(x1)} pairs',
-          transform=axB.transAxes,va='top',fontsize=5.9,color=INK2)
+axB.text(.03,.97,f'observed ρ = {rr:+.2f} ({obs_lo:.2f}–{obs_hi:.2f})\nnull, permuted subtype labels: {null_mean:.2f} ({null_lo:.2f}–{null_hi:.2f})\nobserved at the {pct_obs:.1f}th percentile of the null; {len(x1)} pairs',
+          transform=axB.transAxes,va='top',fontsize=5.6,color=INK2,zorder=6,bbox=dict(fc='white',ec='none',alpha=.85,pad=1.5))
 
 # C: module set-point
 axC=fig.add_subplot(gs[1,1])
@@ -98,5 +99,5 @@ axC.set_title('C  Module set-points by subtype')
 axC.legend(handles=[plt.Rectangle((0,0),1,1,color=COLG[k],label=k) for k in COLG],loc='upper center',bbox_to_anchor=(.5,-.22),ncol=3,fontsize=6.2,columnspacing=1.0,handlelength=1.1)
 (lambda *a, **k: None)('Figure 5. Collagen processing and ER stress form separable modules whose set-point and internal structure both differ in TNBC',
              x=.02,ha='left',fontsize=9.5,fontweight='bold',y=.995)
-for ext in ('png','pdf'): fig.savefig(f'{OUT}/Fig5_correlation_architecture.{ext}',bbox_inches='tight',facecolor='white')
+for ext in ('png','pdf','jpg'): fig.savefig(f'{OUT}/Fig5_correlation_architecture.{ext}',dpi=600,bbox_inches='tight',facecolor='white')
 print('fig5 done; module preservation rho=',round(rr,3))

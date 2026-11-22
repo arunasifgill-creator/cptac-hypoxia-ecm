@@ -1,24 +1,24 @@
-# Direct and ER Stress-Associated Components of the Hypoxia-Collagen Relationship in Breast Cancer
+# Direct and ER Stress-Associated Components of the Hypoxia–Collagen Relationship in Breast Cancer: An Interpretable Proteogenomic and Machine Learning Analysis
 
 Analysis code and data for:
 
-> **Direct and ER Stress-Associated Components of the Hypoxia-Collagen Relationship in Breast Cancer: An Interpretable Proteogenomic and Machine Learning Analysis**
+> **Direct and ER Stress-Associated Components of the Hypoxia–Collagen Relationship in Breast Cancer: An Interpretable Proteogenomic and Machine Learning Analysis**
 > Arun Asif, Zeeshan, Jaeyoung Choi. *Genes* (under revision).
 
-Every figure, table and number from the CPTAC analysis is regenerated from the raw exports in `data/` by a single command. The transcript-level replication in TCGA-BRCA (Section 3.13) draws on a separate cohort and is not reproduced by this repository.
+Every figure, table and number from the CPTAC analysis is regenerated from the raw exports in `data/` by a single command. The transcript-level replication in TCGA-BRCA (Section 3.13) uses a separate cohort that is too large to store here. `code/a15_tcga_replication.py` reproduces it once the files listed in `data/tcga/README.txt` are downloaded.
 
 ---
 
 ## What the study does
 
-The collagen-modifying enzymes sit inside the endoplasmic reticulum, which is also where hypoxia triggers the unfolded protein response. That raises a question nobody had tested in patient tissue at the protein level: is the association between hypoxia and collagen biosynthesis mediated by ER stress, or not?
+The collagen-modifying enzymes sit inside the endoplasmic reticulum, which is also where hypoxia triggers the unfolded protein response. That raises a question that had not been examined in patient tissue at the protein level, whether the association between hypoxia and collagen biosynthesis is mediated by ER stress modules or not.
 
-This repository answers it two independent ways on 122 treatment-naive primary breast tumors:
+This repository examines it in two ways on 122 treatment-naive primary breast tumors, and replicates the classifier at the transcript level in TCGA-BRCA.
 
-1. **Parallel mediation.** A hypoxia score is the exposure, ER stress modules are competing mediators, collagen enzymes are the outcome. Bootstrap confidence intervals separate the component mediated by the measured ER stress modules from the component that is not.
-2. **Interpretable classifiers.** Nested cross-validation asks whether ER stress features carry any information that hypoxia and ECM features do not.
+1. **Parallel mediation.** A hypoxia score is the exposure, ER stress modules are competing mediators, collagen enzymes are the outcome. Bootstrap confidence intervals are given for the component that is not mediated by the ER stress modules and for the mediated one.
+2. **Interpretable classifiers.** Nested cross-validation asks which protein programs distinguish TNBC.
 
-The two methods agree that the component not mediated by the measured ER stress modules is the larger of the two. The size of the mediated component is unresolved, since it is 28 to 42% with the protein modules and falls to 4 to 9% for the PERK/ATF4 arm when ATF4 output is measured more specifically. The classifiers find no information in ER stress features beyond hypoxia and ECM features for TNBC against all other tumors, though ECM features do add information against HER2+ tumors.
+Most of the association between hypoxia and the collagen-modifying enzymes is not mediated by the ER stress modules examined. The size of the mediated component is unresolved, since it is 28 to 42% with the protein modules and falls to 4 to 8% for the PERK/ATF4 arm when ATF4 output is measured with more specific transcript signatures. For TNBC against all other tumors, ECM and ER stress modules add nothing to hypoxia modules, but ECM modules do add against HER2+ tumors and in TCGA. The two analyses are convergent and do not confirm a mechanism.
 
 These are cross-sectional associations between protein abundances. They do not establish causal direction and they do not measure collagen maturation or secretion.
 
@@ -36,7 +36,7 @@ python3 run_all.py
 
 **Runtime is roughly 2 to 3 hours on a laptop**, almost all of it in the cross-validated classifiers (`a3_ml.py` and `a6_ml_foldsafe.py`, which refits every transformation inside each training fold) and the permutation tests (`a4_ml_extra.py`, `a11_robustness.py`). The figure scripts take seconds. To regenerate only the figures from result tables already in `out/`, run the `fig_*.py` scripts directly.
 
-Result tables land in `out/`, figures in `figures/` as 600 dpi PNG and vector PDF.
+Result tables land in `out/`, figures in `figures/` as 600 dpi PNG and vector PDF (Figures 5, 8 and S1 also as 600 dpi JPG).
 
 ---
 
@@ -62,13 +62,27 @@ code/
   a9_mediation_robust.py  path coefficients, VIF, single-mediator, reversed ordering
   a10_signatures.py       broader ATF4 and XBP1s signatures, hypoxia signature
                           bootstrap, comparison with the external Buffa signature
-  a11_robustness.py       tumour-level permutation test for module preservation,
+  a11_robustness.py       tumor-level permutation test for module preservation,
                           and sensitivity to the HER2+ group definition
   a12_batch_qc.py         subtype by TMT plex, and every module score tested across
                           plexes with BH correction
   a13_phospho_qc.py       per-site coverage, missingness sensitivity, residue
                           verification and regulatory annotation
-  make_supp_tables.py     builds the 30-sheet supplementary workbook
+  make_supp_tables.py     builds the 30-sheet supplementary workbook of the second revision
+
+  third-revision analyses (11/2026), all continuous analyses on all 122 tumors:
+  a14_revision3.py              mediation robustness, ATF4/XBP1s/Buffa signatures, hypoxia
+                                signature bootstrap with the published selection rule,
+                                three-group plex test (supersedes the matching parts of
+                                a9, a10 and a12, which used the 117 assigned tumors)
+  a15_tcga_replication.py       transcript-level replication of the classifier in TCGA-BRCA
+                                (needs the files listed in data/tcga/README.txt)
+  a16_revision3_sensitivity.py  covariate sensitivity, leave-one-out, mediator VIF, tumor
+                                stage, module-preservation percentile (supersedes a8)
+                                results are written to out/rev3/
+  make_supp_tables_rev3.py      builds supplement/Supplementary_Tables.xlsx, the final workbook,
+                                replacing Tables S6, S8, S14 to S24, S26, S27 and S30 and adding
+                                S31 to S32 from out/rev3/
 
   fig_*.py           one script per figure
   run_all.py         runs all of the above in order
@@ -89,7 +103,7 @@ figures/             600 dpi PNG + PDF, plus the source values behind each panel
 | 4 | `figs_final.py` | Collagen export, TGF-beta response and ER redox |
 | 5 | `fig_cluster.py` | Correlation architecture of the gene panel |
 | 6 | `fig_ml.py` | Classifier performance by feature set |
-| 7 | `fig_phospho.py` | Phosphosite abundance along the export pathway |
+| 7 | `fig_phospho.py` | Phosphosite abundance of the export machinery along the hypoxia axis |
 | 8 | `fig8_summary.py` | Summary schematic of the relationships examined |
 | S1 | `fig_s1_cohort.py` | Cohort composition, data quality and batch structure |
 | S2 | `figs_final.py` | Hormone receptor subgroups |

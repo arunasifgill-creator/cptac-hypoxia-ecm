@@ -26,6 +26,8 @@ ANALYSES = [
     ('a11_robustness.py',    'module-preservation permutation test and HER2 definition sensitivity'),
     ('a12_batch_qc.py',      'TMT plex by subtype, and every module score tested across plexes'),
     ('a13_phospho_qc.py',    'per-site coverage, missingness sensitivity and residue verification'),
+    ('a14_revision3.py',     'third revision: mediation robustness, signatures, bootstrap and plex test on all 122 tumors'),
+    ('a16_revision3_sensitivity.py', 'third revision: covariate sensitivity, VIF, tumor stage, preservation percentile'),
 ]
 FIGURES = [
     ('fig_core.py',       'Figure 1'),
@@ -38,8 +40,10 @@ FIGURES = [
     ('fig_s1_cohort.py',  'Figure S1'),
     ('fig_supp_large.py', 'Figures S4, S5, S6'),
 ]
+# a15_tcga_replication.py is run separately because it needs the TCGA files listed in data/tcga/README.txt
 TABLES = [
-    ('make_supp_tables.py', 'Supplementary_Tables.xlsx, 30 sheets'),
+    ('make_supp_tables.py', 'Supplementary_Tables.xlsx, 30 sheets (second revision)'),
+    ('make_supp_tables_rev3.py', 'supplement/Supplementary_Tables.xlsx, final workbook for the third revision'),
 ]
 
 def run(stage, items):

@@ -1,0 +1,26 @@
+module,n_defined,n_used,missing
+Fibrillar collagen,4,4,
+Maturation,11,11,
+Collagen export,12,12,
+ER-phagy / ERAD,6,6,
+MMP turnover,3,3,
+Mechanotransduction,8,8,
+Hypoxia (core 7),7,7,
+Hypoxia: glycolysis,14,14,
+Hypoxia: mitochondrial,5,4,NDUFA4L2
+Hypoxia: HIF targets,17,16,ANKRD37
+UPR canonical chaperones,7,7,
+UPR ATF6 targets,6,6,
+UPR IRE1/XBP1 targets,4,4,
+UPR PERK/ATF4 targets,2,2,
+ER redox,5,5,
+NRF2 targets,9,9,
+NADPH supply,4,4,
+Peroxide detox,12,12,
+Ferroptosis defence,4,4,
+Proliferation,2,2,
+CAF,6,6,
+TGF-b response,10,10,
+Hypoxia (expanded),36,34,ANKRD37;NDUFA4L2
+Hypoxia consensus,19,18,NDUFA4L2
+Hypoxia non-glycolytic,8,7,NDUFA4L2
