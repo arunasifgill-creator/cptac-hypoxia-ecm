@@ -1,5 +1,7 @@
 """Figure 8. Summary schematic of the relationships examined in this study.
-Addresses reviewer comment R3-7."""
+
+Panel A names all four ER stress mediators used in the parallel model, so the box matches the
+model it summarizes (third-round editor point 3)."""
 import os, matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -32,11 +34,13 @@ axA.text(-0.1, 4.90, 'A', fontsize=12, fontweight='bold', va='top')
 axA.text(0.42, 4.78, 'Associations compared, direction not identified', fontsize=9, fontweight='bold', va='top', color=INK)
 
 box(axA, 0.55, 3.05, 2.25, 0.95, 'Tumor\nhypoxia', '#fdf0d0', HYP, fs=9, bold=True)
-box(axA, 0.55, 1.05, 2.25, 0.95, 'ER stress\nPERK/ATF4, ER redox', '#efe7f8', ERS, fs=7.8, bold=False)
+box(axA, 0.42, 1.14, 2.62, 1.00,
+    'ER stress, four mediators\nchaperones, ATF6 targets,\nPERK/ATF4 targets, ER redox',
+    '#efe7f8', ERS, fs=6.5, bold=False)
 
 # association only: a double-headed dashed line, no causal direction implied
-arrow(axA, (1.68, 3.02), (1.68, 2.03), color=INK2, lw=1.3, style='<|-|>', ls=(0,(4,2)))
-axA.text(2.98, 2.52, 'associated,\ndirection not identified', fontsize=7.0, color=INK2, va='center', ha='left', linespacing=1.4)
+arrow(axA, (1.73, 3.02), (1.73, 2.20), color=INK2, lw=1.3, style='<|-|>', ls=(0,(4,2)))
+axA.text(3.05, 2.62, 'associated,\ndirection not identified', fontsize=7.0, color=INK2, va='center', ha='left', linespacing=1.4)
 
 box(axA, 6.05, 1.95, 3.65, 1.25,
     'Collagen program\nprocessing enzymes: higher abundance\ndeposited collagen: no association\nexport module: no overall association',
@@ -44,7 +48,7 @@ box(axA, 6.05, 1.95, 3.65, 1.25,
 
 arrow(axA, (2.80, 3.40), (6.05, 2.95), color=INK, lw=2.4, rad=0.05)
 axA.text(4.45, 3.60, 'larger component,\nnot mediated', ha='center', va='bottom', linespacing=1.25, fontsize=7.6, color=INK, fontweight='bold')
-arrow(axA, (2.80, 1.45), (6.05, 2.25), color=ERS, lw=1.2, ls=(0,(4,2)), rad=-0.05)
+arrow(axA, (3.04, 1.70), (6.05, 2.25), color=ERS, lw=1.2, ls=(0,(4,2)), rad=-0.05)
 axA.text(4.75, 1.32, 'smaller, magnitude unresolved', ha='center', fontsize=7.0, color=ERS)
 
 axA.add_patch(Rectangle((0.3, 0.06), 9.4, 0.80, fc='#faf9f6', ec=GRID, lw=0.8, zorder=1))
