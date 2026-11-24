@@ -94,7 +94,7 @@ DESC={
  'S22_hypoxia_bootstrap':'Bootstrap retention of each hypoxia signature gene',
  'S23_buffa_comparison':'Comparison with the external Buffa hypoxia signature',
  'S24_med_perk_variants':'Mediated fraction under alternative PERK/ATF4 readouts',
- 'S25_her2_definition':'Effect sizes under four definitions of the HER2+ group',
+ 'S25_her2_definition':'Effect sizes under three definitions of the HER2+ group',
  'S26_preservation_perm':'Module preservation: observed value, permutation null and bootstrap interval',
  'S27_phospho_site_qc':'Per-site residues, peptide multiplicity, sample size, missingness and regulatory annotation',
  'S28_phospho_missingness':'Export phosphosites: complete case versus median imputation',
